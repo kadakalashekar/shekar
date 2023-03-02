@@ -1,0 +1,231 @@
+triggers in mysql
+
+
+
+
+mysql> use triggers;
+Database changed
+mysql> create table medicine(mid int,medname varchar(45)not null,price int,quantity int);
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc medicine;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| mid      | int         | YES  |     | NULL    |       |
+| medname  | varchar(45) | NO   |     | NULL    |       |
+| price    | int         | YES  |     | NULL    |       |
+| quantity | int         | YES  |     | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> insert into medicine values(1,'crocin',500,25);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into medicine values(2,'colduck',200,25);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into medicine values(3,'cipla',200,25);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select* from medicine;
++------+---------+-------+----------+
+| mid  | medname | price | quantity |
++------+---------+-------+----------+
+|    1 | crocin  |   500 |       25 |
+|    2 | colduck |   200 |       25 |
+|    3 | cipla   |   200 |       25 |
++------+---------+-------+----------+
+3 rows in set (0.00 sec)
+
+mysql> create table neworder(mid int, odate date,newquantity  int);
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> desc neworder;
++-------------+------+------+-----+---------+-------+
+| Field       | Type | Null | Key | Default | Extra |
++-------------+------+------+-----+---------+-------+
+| mid         | int  | YES  |     | NULL    |       |
+| odate       | date | YES  |     | NULL    |       |
+| newquantity | int  | YES  |     | NULL    |       |
++-------------+------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> create trigger newordertrigger after update on medicine for each row
+    -> ^C
+mysql> delimitter $$
+    -> ^C
+mysql> delimitter $$;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'delimitter $$' at line 1
+mysql> delimiter $$
+mysql> create trigger newordertrigger after update on medicine for each row
+    -> begin
+    -> if new.quantity < 20 then
+    -> insert into neworder values(new.mid,sysdate(),200);
+    -> end if;
+    -> end
+    -> $$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select* from neworder;
+    -> ^C
+mysql> select* from neworder $$
+Empty set (0.00 sec)
+
+mysql> update medicine set quantity = 15 where mid =1;
+    -> ^C
+mysql> update medicine set quantity = 15 where mid =1
+    -> $$
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select* from medicine $$
++------+---------+-------+----------+
+| mid  | medname | price | quantity |
++------+---------+-------+----------+
+|    1 | crocin  |   500 |       15 |
+|    2 | colduck |   200 |       25 |
+|    3 | cipla   |   200 |       25 |
++------+---------+-------+----------+
+3 rows in set (0.00 sec)
+
+mysql> select* from neworder $$
++------+------------+-------------+
+| mid  | odate      | newquantity |
++------+------------+-------------+
+|    1 | 2023-02-23 |         200 |
++------+------------+-------------+
+1 row in set (0.00 sec)
+
+mysql> delimiter ;
+mysql> ;
+ERROR:
+No query specified
+
+mysql> select* from newoerder;
+ERROR 1146 (42S02): Table 'triggers.newoerder' doesn't exist
+mysql> select* from neworder;
++------+------------+-------------+
+| mid  | odate      | newquantity |
++------+------------+-------------+
+|    1 | 2023-02-23 |         200 |
++------+------------+-------------+
+1 row in set (0.00 sec)
+
+mysql> update medicine set quantity = 15 where mid =2;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select* from neworder;
++------+------------+-------------+
+| mid  | odate      | newquantity |
++------+------------+-------------+
+|    1 | 2023-02-23 |         200 |
+|    2 | 2023-02-23 |         200 |
++------+------------+-------------+
+2 rows in set (0.00 sec)
+
+
+
+
+
+
+ create trigger student_trigger5 before insert on student_trigger1 for each row set new.std_total = new.subj1+new.subj2+new.subj3,new.std_per =(new.std_total/600)*100;
+
+
+
+
+
+mysql> create table student_trigger(id int not null primary key,name varchar(45)not null,subj1 int,subj2 int,subj3 int,subj4 int,subj5 int,subj6 int,student_total int,student_per int);
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> desc student_trigger;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| id            | int         | NO   | PRI | NULL    |       |
+| name          | varchar(45) | NO   |     | NULL    |       |
+| subj1         | int         | YES  |     | NULL    |       |
+| subj2         | int         | YES  |     | NULL    |       |
+| subj3         | int         | YES  |     | NULL    |       |
+| subj4         | int         | YES  |     | NULL    |       |
+| subj5         | int         | YES  |     | NULL    |       |
+| subj6         | int         | YES  |     | NULL    |       |
+| student_total | int         | YES  |     | NULL    |       |
+| student_per   | int         | YES  |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+10 rows in set (0.00 sec)
+
+mysql> create trigger  student_table_marks before insert on student_trigger for each row  set new.student_total = new.subj1+new.subj2+new.subj3+new.subj4+new.subj5+new.subj6,new.student_per =( new.Student_Total / 400) * 100;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> insert into student_trigger values(1,'meera',90,90,90,90,90,90,0,0);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select* from student_trigger;
++----+-------+-------+-------+-------+-------+-------+-------+---------------+-------------+
+| id | name  | subj1 | subj2 | subj3 | subj4 | subj5 | subj6 | student_total | student_per |
++----+-------+-------+-------+-------+-------+-------+-------+---------------+-------------+
+|  1 | meera |    90 |    90 |    90 |    90 |    90 |    90 |           540 |         135 |
++----+-------+-------+-------+-------+-------+-------+-------+---------------+-------------+
+1 row in set (0.00 sec)
+
+
+before insert
+
+mysql> create trigger  student_table_marks1 before insert on student_trigger for each row set new.student_total = new.subj1+new.subj2+new.subj3+new.subj4+new.subj5+new.subj6,new.student_per =( new.Student_Total / 600) * 100;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> insert into student_trigger values(2,'meerakumari',90,90,90,90,90,90,0,0);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select* from student_trigger;
++----+-------------+-------+-------+-------+-------+-------+-------+---------------+-------------+
+| id | name        | subj1 | subj2 | subj3 | subj4 | subj5 | subj6 | student_total | student_per |
++----+-------------+-------+-------+-------+-------+-------+-------+---------------+-------------+
+|  1 | meera       |    90 |    90 |    90 |    90 |    90 |    90 |           540 |         135 |
+|  2 | meerakumari |    90 |    90 |    90 |    90 |    90 |    90 |           540 |          90 |
++----+-------------+-------+-------+-------+-------+-------+-------+---------------+-------------+
+2 rows in set (0.00 sec)
+
+mysql>
+
+after insert 
+
+ create  trigger after_insert_details after insert on student_info for each row begin insert into student_info values(new.id,new.std_name,new.marks,new.mbl, CURTIME()); END//
+
+
+
+
+
+
+
+CREATE TABLE student_info1 (  
+  stud_id int NOT NULL,  
+  stud_code varchar(15) DEFAULT NULL,  
+  stud_name varchar(35) DEFAULT NULL,  
+  subject varchar(25) DEFAULT NULL,  
+  marks int DEFAULT NULL,  
+  phone varchar(15) DEFAULT NULL,  
+  PRIMARY KEY (stud_id)  
+)  
+
+
+
+
+CREATE TABLE student_detail1 (  
+  stud_id int NOT NULL,  
+  stud_code varchar(15) DEFAULT NULL,  
+  stud_name varchar(35) DEFAULT NULL,  
+  subject varchar(25) DEFAULT NULL,  
+  marks int DEFAULT NULL,  
+  phone varchar(15) DEFAULT NULL,  
+  Lasinserted Time,  
+  PRIMARY KEY (stud_id)  
+);  
+
+
+
+
+
+Create Trigger after_insert_details  AFTER INSERT ON student_info1 FOR EACH ROW  BEGIN  INSERT INTO student_detail1 VALUES (new.stud_id, new.stud_code,   new.stud_name, new.subject, new.marks, new.phone, CURTIME());  END //  
